@@ -1,0 +1,169 @@
+let CryptoJS = require('crypto-js')
+
+export default {
+  getStore (key) {
+    let _value = sessionStorage.getItem(key)
+    _value = _value === null ? '' : _value
+    return _value
+  },
+  setStore (key, value) {
+    if (key && value !== '') {
+      if (typeof value === 'object') {
+        value = JSON.stringify(value)
+      }
+      sessionStorage.setItem(key, value)
+    }
+  },
+  removeStore (key) {
+    if (this.getStore(key)) {
+      sessionStorage.removeItem(key)
+    }
+  },
+  getLocalstorageStore (key) {
+    let _value = window.localStorage.getItem(key)
+    _value = _value === null ? '' : _value
+    return _value
+  },
+  setLocalstorageStore (key, value) {
+    if (key && value !== '') {
+      if (typeof value === 'object') {
+        value = JSON.stringify(value)
+      }
+      window.localStorage.setItem(key, value)
+    }
+  },
+  removeLocalstorageStore (key) {
+    if (this.getStore(key)) {
+      window.localStorage.removeItem(key)
+    }
+  },
+  getCookie (name) {
+    if (!document.cookie.length) return
+    let reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
+    let arr = document.cookie.match(reg)
+
+    if (Array.isArray(arr)) {
+      return unescape(arr[2])
+    } else {
+      return null
+    }
+  },
+  setCookie (name, value, days = 30) {
+    let exp = new Date()
+    exp.setTime(exp.getTime() + days * 24 * 60 * 60 * 1000)
+    document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString()
+  },
+  deleteAllCookies () {
+    var cookies = document.cookie.split(';')
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i]
+      var eqPos = cookie.indexOf('=')
+      var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
+      document.cookie = name + `=;expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    }
+  },
+  getDAesString (encrypted, key, iv) { // 解密
+    var key1 = CryptoJS.enc.Hex.parse(key)
+    var iv1 = CryptoJS.enc.Latin1.parse(iv)
+    var decrypted = CryptoJS.AES.decrypt(encrypted, key1,
+      {
+        iv: iv1,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      })
+    return decrypted.toString(CryptoJS.enc.Utf8)
+  },
+  /**
+   * 将URL的参数转化为对象
+   * */
+  param2Obj (url) {
+    const search = url.split('?')[1]
+    if (!search) {
+      return {}
+    }
+    return JSON.parse(
+      '{"' +
+      decodeURIComponent(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}'
+    )
+  },
+  // 获取屏幕宽度
+  getWindowWidth () {
+    return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+  },
+  // 获取屏幕高度
+  getWindowHeight () {
+    return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+  },
+  // 处理async/await的异常
+  async errorCaptured (asyncFunc) {
+    try {
+      let res = await asyncFunc()
+      return [null, res]
+    } catch (e) {
+      return [e, null]
+    }
+  },
+  debounce (func, wait = 50, immediate = false) {
+    let timer, context, args
+    const later = () => setTimeout(() => {
+      timer = null
+      if (!immediate) {
+        func.apply(context, args)
+        context = args = null
+      }
+    }, wait)
+    return function (...params) {
+      // 如果没有创建延迟执行函数（later），就创建一个
+      if (!timer) {
+        timer = later()
+        // 如果是立即执行，调用函数
+        // 否则缓存参数和调用上下文
+        if (immediate) {
+          func.apply(this, params)
+        } else {
+          context = this
+          args = params
+        }
+        // 如果已有延迟执行函数（later），调用的时候清除原来的并重新设定一个
+        // 这样做延迟函数会重新计时
+      } else {
+        clearTimeout(timer)
+        timer = later()
+      }
+    }
+  },
+  formatDate (date) {
+    var myyear = date.getFullYear()
+    var mymonth = date.getMonth() + 1
+    var myweekday = date.getDate()
+
+    if (mymonth < 10) {
+      mymonth = '0' + mymonth
+    }
+    if (myweekday < 10) {
+      myweekday = '0' + myweekday
+    }
+    return (myyear + '-' + mymonth + '-' + myweekday)
+  },
+  /**
+   * 随机生成[m,n]之间的随机数
+   */
+  createNumber (min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  },
+  /**
+   * 判断是否在微信中打开
+   */
+  isweixin () {
+    const ua = window.navigator.userAgent.toLowerCase()
+    if (ua.match(/MicroMessenger/i) && ua.match(/MicroMessenger/i)[0] === 'micromessenger') {
+      return true
+    } else {
+      return false
+    }
+  }
+}
