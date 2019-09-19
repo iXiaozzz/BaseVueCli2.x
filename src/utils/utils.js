@@ -166,6 +166,33 @@ export default {
       return false
     }
   },
+  /**
+   * 判断是否是对象
+   */
+  isObject (obj) {
+    return typeof obj === "object" && obj !== null
+  },
+  /**
+   * 深度拷贝
+   * @param {拷贝的对象} source 
+   * @param {已拷贝的值} hash 
+   */
+  deepClone (source, hash = new WeakMap()) {
+    if (!this.isObject(source)) return source
+    if (hash.has(source)) return hash.get(source)
+    let target = Array.isArray(source) ? [] : {}
+    hash.set(source, target)
+    for (let key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        if (this.isObject(source[key])) {
+          target[key] = this.deepClone(source[key], hash)
+        } else {
+          target[key] = source[key]
+        }
+      }
+    }
+    return target
+  },
   // 判断手势事件
   handleDirection (data) {
     // 手势识别
