@@ -177,11 +177,7 @@ export default {
    */
   isweixin() {
     const ua = window.navigator.userAgent.toLowerCase()
-    if (ua.match(/MicroMessenger/i) && ua.match(/MicroMessenger/i)[0] === 'micromessenger') {
-      return true
-    } else {
-      return false
-    }
+    return ua.match(/MicroMessenger/i) && ua.match(/MicroMessenger/i)[0] === 'micromessenger' ? true : false
   },
   /**
    * 判断是否是对象
@@ -210,10 +206,10 @@ export default {
     }
     return target
   },
-  // 延时函数
-  delay(timeout) {
+  // 延时函数 t:时间
+  delay(t) {
     return new Promise(resolve => {
-      setTimeout(resolve, timeout)
+      setTimeout(resolve, t)
     })
   },
   // 判断手势事件
