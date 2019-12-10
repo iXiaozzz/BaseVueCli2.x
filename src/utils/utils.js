@@ -1,12 +1,12 @@
 let CryptoJS = require('crypto-js')
 
 export default {
-  getStore (key) {
+  getStore(key) {
     let _value = sessionStorage.getItem(key)
     _value = _value === null ? '' : _value
     return _value
   },
-  setStore (key, value) {
+  setStore(key, value) {
     if (key && value !== '') {
       if (typeof value === 'object') {
         value = JSON.stringify(value)
@@ -14,17 +14,17 @@ export default {
       sessionStorage.setItem(key, value)
     }
   },
-  removeStore (key) {
+  removeStore(key) {
     if (this.getStore(key)) {
       sessionStorage.removeItem(key)
     }
   },
-  getLocalstorageStore (key) {
+  getLocalstorageStore(key) {
     let _value = window.localStorage.getItem(key)
     _value = _value === null ? '' : _value
     return _value
   },
-  setLocalstorageStore (key, value) {
+  setLocalstorageStore(key, value) {
     if (key && value !== '') {
       if (typeof value === 'object') {
         value = JSON.stringify(value)
@@ -32,12 +32,12 @@ export default {
       window.localStorage.setItem(key, value)
     }
   },
-  removeLocalstorageStore (key) {
+  removeLocalstorageStore(key) {
     if (this.getStore(key)) {
       window.localStorage.removeItem(key)
     }
   },
-  getCookie (name) {
+  getCookie(name) {
     if (!document.cookie.length) return
     let reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
     let arr = document.cookie.match(reg)
@@ -48,12 +48,12 @@ export default {
       return null
     }
   },
-  setCookie (name, value, days = 30) {
+  setCookie(name, value, days = 30) {
     let exp = new Date()
     exp.setTime(exp.getTime() + days * 24 * 60 * 60 * 1000)
     document.cookie = name + '=' + escape(value) + ';expires=' + exp.toGMTString()
   },
-  deleteAllCookies () {
+  deleteAllCookies() {
     var cookies = document.cookie.split(';')
     for (var i = 0; i < cookies.length; i++) {
       var cookie = cookies[i]
@@ -62,7 +62,7 @@ export default {
       document.cookie = name + `=;expires=Thu, 01 Jan 1970 00:00:00 GMT`
     }
   },
-  getDAesString (encrypted, key, iv) { // 解密
+  getDAesString(encrypted, key, iv) { // 解密
     var key1 = CryptoJS.enc.Hex.parse(key)
     var iv1 = CryptoJS.enc.Latin1.parse(iv)
     var decrypted = CryptoJS.AES.decrypt(encrypted, key1,
@@ -76,7 +76,7 @@ export default {
   /**
    * 将URL的参数转化为对象
    * */
-  param2Obj (url) {
+  param2Obj(url) {
     const search = url.split('?')[1]
     if (!search) {
       return {}
@@ -91,15 +91,15 @@ export default {
     )
   },
   // 获取屏幕宽度
-  getWindowWidth () {
+  getWindowWidth() {
     return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
   },
   // 获取屏幕高度
-  getWindowHeight () {
+  getWindowHeight() {
     return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
   },
   // 处理async/await的异常
-  async errorCaptured (asyncFunc) {
+  async errorCaptured(asyncFunc) {
     try {
       let res = await asyncFunc()
       return [null, res]
@@ -107,7 +107,8 @@ export default {
       return [e, null]
     }
   },
-  debounce (func, wait = 50, immediate = false) {
+  // 防抖函数
+  debounce(func, wait = 50, immediate = false) {
     let timer, context, args
     const later = () => setTimeout(() => {
       timer = null
@@ -136,7 +137,23 @@ export default {
       }
     }
   },
-  formatDate (date) {
+  // 节流函数
+  throttle(func, wait = 50) {
+    // 上一次执行 fn 的时间
+    let previous = 0
+    // 将 throttle 处理结果当作函数返回
+    return function (...args) {
+      // 获取当前时间，转换成时间戳，单位毫秒
+      let now = +new Date()
+      // 将当前时间和上一次执行函数的时间进行对比
+      // 大于等待时间就把 previous 设置为当前时间并执行函数 fn
+      if (now - previous > wait) {
+        previous = now
+        func.apply(this, args)
+      }
+    }
+  },
+  formatDate(date) {
     var myyear = date.getFullYear()
     var mymonth = date.getMonth() + 1
     var myweekday = date.getDate()
@@ -152,13 +169,13 @@ export default {
   /**
    * 随机生成[m,n]之间的随机数
    */
-  createNumber (min, max) {
+  createNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
   },
   /**
    * 判断是否在微信中打开
    */
-  isweixin () {
+  isweixin() {
     const ua = window.navigator.userAgent.toLowerCase()
     if (ua.match(/MicroMessenger/i) && ua.match(/MicroMessenger/i)[0] === 'micromessenger') {
       return true
@@ -169,7 +186,7 @@ export default {
   /**
    * 判断是否是对象
    */
-  isObject (obj) {
+  isObject(obj) {
     return typeof obj === "object" && obj !== null
   },
   /**
@@ -177,7 +194,7 @@ export default {
    * @param {拷贝的对象} source 
    * @param {已拷贝的值} hash 
    */
-  deepClone (source, hash = new WeakMap()) {
+  deepClone(source, hash = new WeakMap()) {
     if (!this.isObject(source)) return source
     if (hash.has(source)) return hash.get(source)
     let target = Array.isArray(source) ? [] : {}
@@ -193,8 +210,14 @@ export default {
     }
     return target
   },
+  // 延时函数
+  delay(timeout) {
+    return new Promise(resolve => {
+      setTimeout(resolve, timeout)
+    })
+  },
   // 判断手势事件
-  handleDirection (data) {
+  handleDirection(data) {
     // 手势识别
     if (!data.start) {
       return false
